@@ -12,3 +12,16 @@ export async function startCamera(video) {
   const s = stream.getVideoTracks()[0].getSettings();
   return { width: s.width ?? video.videoWidth, height: s.height ?? video.videoHeight, fps: s.frameRate };
 }
+
+// 새 프레임마다 cb(captureTime) 호출. captureTime은 카메라가 프레임을 찍은 시각(performance.now 기준).
+export function onFrames(video, cb) {
+  let lastTime = -1;
+  const tick = (now, meta) => {
+    if (video.currentTime !== lastTime) {
+      lastTime = video.currentTime;
+      cb(meta?.captureTime ?? performance.now());
+    }
+    video.requestVideoFrameCallback ? video.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
+  };
+  tick();
+}

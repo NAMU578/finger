@@ -1,5 +1,5 @@
 // 0단계: 카메라 점검. 양손 검출률, 처리 속도, 왼손/오른손 판정을 확인한다.
-import { startCamera } from './camera.js';
+import { startCamera, onFrames } from './camera.js';
 import { createTracker, detectHands } from './handTracker.js';
 import { drawHands } from './overlay.js';
 
@@ -38,21 +38,15 @@ async function main() {
   $('delegate').textContent = delegate;
   $('status').textContent = '작동 중';
 
-  let lastTime = -1;
-  const tick = () => {
-    if (video.currentTime !== lastTime) {
-      lastTime = video.currentTime;
-      const t0 = performance.now();
-      const hands = detectHands(landmarker, video, t0, $('swap').checked);
-      const t1 = performance.now();
-      const sides = hands.map((h) => h.side);
-      log.push({ t: t1, both: sides.includes('left') && sides.includes('right'), ms: t1 - t0 });
-      drawHands(ctx, hands);
-      updateStats(t1);
-    }
-    video.requestVideoFrameCallback ? video.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
-  };
-  tick();
+  onFrames(video, () => {
+    const t0 = performance.now();
+    const hands = detectHands(landmarker, video, t0, $('swap').checked);
+    const t1 = performance.now();
+    const sides = hands.map((h) => h.side);
+    log.push({ t: t1, both: sides.includes('left') && sides.includes('right'), ms: t1 - t0 });
+    drawHands(ctx, hands);
+    updateStats(t1);
+  });
 }
 
 main().catch((e) => {

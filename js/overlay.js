@@ -6,7 +6,8 @@ const BONES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [
   [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
 const COLOR = { left: '#2f6fdd', right: '#d9502f' };
 
-export function drawHands(ctx, hands) {
+// targets: 강조할 손가락 키 목록 (예: ['left-index', 'right-ring'])
+export function drawHands(ctx, hands, targets = []) {
   const { width: w, height: h } = ctx.canvas;
   const px = (p) => [(1 - p.x) * w, p.y * h]; // 거울 반전
   ctx.clearRect(0, 0, w, h);
@@ -27,6 +28,13 @@ export function drawHands(ctx, hands) {
       ctx.arc(x, y, 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillText(noteName(NOTES[side][f]), x + 6, y - 6);
+      if (targets.includes(`${side}-${f}`)) {
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(x, y, 14, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 2;
+      }
     }
     const [wx, wy] = px(lm[0]);
     ctx.font = 'bold 16px sans-serif';

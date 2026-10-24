@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>손가락 피아노 - 데이터 수집</title>
+<style>
+  body { font-family: sans-serif; margin: 16px; color: #222; background: #fafafa; }
+  h1 { font-size: 20px; margin: 0 0 12px; }
+  .wrap { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .stage { position: relative; width: 640px; max-width: 100%; }
+  video, canvas { width: 100%; display: block; }
+  video { transform: scaleX(-1); background: #000; }
+  canvas { position: absolute; inset: 0; height: 100%; }
+  .panel { font-size: 14px; max-width: 380px; }
+  #now { font-size: 30px; font-weight: bold; min-height: 40px; }
+  #next { font-size: 18px; color: #666; min-height: 24px; }
+  fieldset { margin: 8px 0; }
+  button { font-size: 15px; padding: 6px 14px; margin-right: 6px; }
+</style>
+</head>
+<body>
+<h1>1단계: 데이터 수집</h1>
+<p id="status">준비 중…</p>
+<div class="wrap">
+  <div class="stage">
+    <video id="video" playsinline muted></video>
+    <canvas id="overlay"></canvas>
+  </div>
+  <div class="panel">
+    <div>다음 박자에 누를 것</div>
+    <div id="now">-</div>
+    <div id="next"></div>
+    <p id="progress"></p>
+
+    <fieldset>
+      <legend>설정</legend>
+      <label>BPM <input id="bpm" type="number" value="60" min="20" max="200" style="width:60px"></label>
+      <label>박자 수 <input id="beats" type="number" value="100" min="1" style="width:60px"></label>
+      <div id="patterns" style="margin-top:6px"></div>
+      <label><input type="checkbox" id="swap"> 왼손/오른손 반대로 보정</label>
+    </fieldset>
+
+    <button id="start" disabled>시작</button>
+    <button id="stop" disabled>중지</button>
+    <button id="save" disabled>CSV 저장</button>
+    <p id="result"></p>
+
+    <ol>
+      <li>시작을 누르면 예비 박 4번(높은 소리) 뒤에 기록이 시작됩니다.</li>
+      <li>"다음 박자에 누를 것"에 표시된 손가락(화면에 큰 원)을 다음 클릭 소리에 맞춰 책상에 두드립니다.</li>
+      <li>잘못 눌렀으면 바로 스페이스바를 누르세요. 그 박자는 학습에서 빠집니다.</li>
+      <li>끝나면 CSV 저장을 눌러 파일 2개(frames, beats)를 받고, Colab에 함께 올립니다.</li>
+    </ol>
+    <p><a href="index.html">← 카메라 점검</a></p>
+  </div>
+</div>
+<script type="module" src="js/collect.js"></script>
+</body>
+</html>

@@ -29,9 +29,16 @@ export function resolveSide(label, swap) {
 // 한 프레임 처리 → [{ side, score, landmarks }]
 export function detectHands(landmarker, video, timeMs, swap) {
   const r = landmarker.detectForVideo(video, timeMs);
-  return r.landmarks.map((landmarks, i) => ({
+  const hands = r.landmarks.map((landmarks, i) => ({
     side: resolveSide(r.handedness[i][0].categoryName, swap),
     score: r.handedness[i][0].score,
     landmarks, // 정규화 좌표 x, y (0~1), z(손목 기준 상대 깊이)
   }));
+  // 두 손이 같은 쪽으로 분류되면 화면 위치로 판정: 반전 안 한 원본 영상에서 사용자의 왼손은 x가 큰 쪽
+  if (hands.length === 2 && hands[0].side === hands[1].side) {
+    const aIsLeft = hands[0].landmarks[0].x > hands[1].landmarks[0].x;
+    hands[0].side = resolveSide(aIsLeft ? 'Right' : 'Left', swap);
+    hands[1].side = resolveSide(aIsLeft ? 'Left' : 'Right', swap);
+  }
+  return hands;
 }
