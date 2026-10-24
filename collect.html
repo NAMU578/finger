@@ -35,10 +35,19 @@
 
     <fieldset>
       <legend>설정</legend>
-      <label>BPM <input id="bpm" type="number" value="60" min="20" max="200" style="width:60px"></label>
-      <label>박자 수 <input id="beats" type="number" value="100" min="1" style="width:60px"></label>
-      <div id="patterns" style="margin-top:6px"></div>
+      <label>BPM <input id="bpm" type="number" value="80" min="20" max="200" style="width:60px"></label>
       <label><input type="checkbox" id="swap"> 왼손/오른손 반대로 보정</label>
+    </fieldset>
+    <fieldset>
+      <legend><label><input type="radio" name="mode" value="block" checked> 블록 (손가락마다 연속으로 치기)</label></legend>
+      <label>라운드 수 <input id="rounds" type="number" value="2" min="1" style="width:50px"></label>
+      <label>블록 길이 <input id="blockLen" type="number" value="4" min="1" style="width:50px">박</label>
+      <div style="color:#666">1라운드 = 손가락 10개를 무작위 순서로 한 번씩</div>
+    </fieldset>
+    <fieldset>
+      <legend><label><input type="radio" name="mode" value="random"> 무작위 악보</label></legend>
+      <label>박자 수 <input id="beats" type="number" value="50" min="1" style="width:60px"></label>
+      <div id="patterns" style="margin-top:6px"></div>
     </fieldset>
 
     <button id="start" disabled>시작</button>

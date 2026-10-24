@@ -2,7 +2,7 @@
 import { startCamera, onFrames } from './camera.js';
 import { createTracker, detectHands } from './handTracker.js';
 import { drawHands } from './overlay.js';
-import { PATTERNS, makeScore, describe } from './score.js';
+import { PATTERNS, makeScore, makeBlockScore, nextChange, describe } from './score.js';
 import { startMetronome, stopMetronome } from './metronome.js';
 import { createRecorder, beatsCsv, download } from './recorder.js';
 
@@ -26,10 +26,10 @@ const passedBeats = (now) => session.beatTimes.filter((t) => t <= now).length;
 function finish(now) {
   stopMetronome();
   const n = passedBeats(now); // 중간에 멈추면 지나간 박자까지만 저장
-  const { score, beatTimes, discarded, bpm, latencyMs, recorder, stamp } = session;
+  const { score, beatTimes, discarded, bpm, latencyMs, recorder, stamp, mode } = session;
   files = {
-    [`session_${stamp}_frames.csv`]: recorder.csv(),
-    [`session_${stamp}_beats.csv`]: beatsCsv(score, beatTimes.slice(0, n), discarded, bpm, latencyMs),
+    [`session_${stamp}_${mode}_frames.csv`]: recorder.csv(),
+    [`session_${stamp}_${mode}_beats.csv`]: beatsCsv(score, beatTimes.slice(0, n), discarded, bpm, latencyMs),
   };
   $('result').textContent = `기록 완료: 박자 ${n}개 (폐기 ${discarded.size}개), 프레임 ${recorder.count()}개`;
   session = null;
@@ -42,19 +42,29 @@ function updateDisplay(now) {
   if (!session) return [];
   const i = passedBeats(now);
   $('now').textContent = i < session.score.length ? describe(session.score[i]) : '끝';
-  $('next').textContent = describe(session.score[i + 1]);
+  const j = i < session.score.length ? nextChange(session.score, i) : -1;
+  $('next').textContent = j < 0 ? '' : `그다음 바뀜: ${describe(session.score[j])} (${j - i}박 뒤)`;
   $('progress').textContent = `${i} / ${session.score.length}박, 폐기 ${session.discarded.size}`;
   return session.score[i] ?? [];
 }
 
 $('start').onclick = async () => {
-  const types = [...document.querySelectorAll('input[name=pattern]:checked')].map((c) => c.value);
+  const mode = document.querySelector('input[name=mode]:checked').value;
   const bpm = Number($('bpm').value);
-  const nBeats = Number($('beats').value);
-  if (!types.length || !(bpm > 0) || !(nBeats > 0)) return alert('패턴, BPM, 박자 수를 확인하세요.');
-  const score = makeScore(nBeats, types);
-  const { beatTimes, latencyMs } = await startMetronome(bpm, nBeats, COUNT_IN);
-  session = { score, beatTimes, latencyMs, bpm, discarded: new Set(), recorder: createRecorder(),
+  let score;
+  if (mode === 'block') {
+    const rounds = Number($('rounds').value);
+    const blockLen = Number($('blockLen').value);
+    if (!(bpm > 0) || !(rounds > 0) || !(blockLen > 0)) return alert('BPM, 라운드 수, 블록 길이를 확인하세요.');
+    score = makeBlockScore(rounds, blockLen);
+  } else {
+    const types = [...document.querySelectorAll('input[name=pattern]:checked')].map((c) => c.value);
+    const nBeats = Number($('beats').value);
+    if (!types.length || !(bpm > 0) || !(nBeats > 0)) return alert('패턴, BPM, 박자 수를 확인하세요.');
+    score = makeScore(nBeats, types);
+  }
+  const { beatTimes, latencyMs } = await startMetronome(bpm, score.length, COUNT_IN);
+  session = { score, beatTimes, latencyMs, bpm, mode, discarded: new Set(), recorder: createRecorder(),
     stamp: new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '') };
   files = null;
   $('start').disabled = true;

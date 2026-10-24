@@ -24,6 +24,24 @@ export function makeScore(nBeats, types) {
   return Array.from({ length: nBeats }, () => PATTERNS[pick(types)].make());
 }
 
+// 블록 악보: 손가락 10개를 무작위 순서로 한 번씩, 각각 blockLen박 연속. 이것을 rounds번 반복.
+export function makeBlockScore(rounds, blockLen) {
+  const score = [];
+  for (let r = 0; r < rounds; r++) {
+    for (const k of sample(KEYS, KEYS.length)) {
+      for (let i = 0; i < blockLen; i++) score.push([k]);
+    }
+  }
+  return score;
+}
+
+// i번째 박자 다음에 처음으로 다른 조합이 나오는 위치 (없으면 -1)
+export function nextChange(score, i) {
+  const cur = String(score[i]);
+  for (let j = i + 1; j < score.length; j++) if (String(score[j]) !== cur) return j;
+  return -1;
+}
+
 export function describe(keys) {
   if (!keys) return '';
   if (!keys.length) return '쉼';
