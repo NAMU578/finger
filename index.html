@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>손가락 피아노 - 카메라 점검</title>
+<style>
+  body { font-family: sans-serif; margin: 16px; color: #222; background: #fafafa; }
+  h1 { font-size: 20px; margin: 0 0 12px; }
+  .wrap { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .stage { position: relative; width: 640px; max-width: 100%; }
+  video, canvas { width: 100%; display: block; }
+  video { transform: scaleX(-1); background: #000; } /* 거울처럼 보이게 */
+  canvas { position: absolute; inset: 0; height: 100%; }
+  table { border-collapse: collapse; font-size: 14px; }
+  td { border: 1px solid #ccc; padding: 4px 8px; }
+  .ok { color: #1a7f37; font-weight: bold; }
+  .bad { color: #c62828; font-weight: bold; }
+  ol { font-size: 14px; padding-left: 20px; max-width: 360px; }
+</style>
+</head>
+<body>
+<h1>0단계: 카메라 점검</h1>
+<p id="status">준비 중…</p>
+<div class="wrap">
+  <div class="stage">
+    <video id="video" playsinline muted></video>
+    <canvas id="overlay"></canvas>
+  </div>
+  <div>
+    <table>
+      <tr><td>해상도</td><td id="res">-</td></tr>
+      <tr><td>연산 장치</td><td id="delegate">-</td></tr>
+      <tr><td>처리 속도 (목표 20fps 이상)</td><td><span id="fpsCheck"><span id="fps">-</span> fps</span></td></tr>
+      <tr><td>양손 동시 검출률 (목표 95% 이상)</td><td><span id="bothCheck" ><span id="both">-</span></span></td></tr>
+      <tr><td>프레임당 인식 시간</td><td id="ms">-</td></tr>
+    </table>
+    <p><label><input type="checkbox" id="swap"> 왼손/오른손 표시가 반대면 체크</label></p>
+    <ol>
+      <li>양손을 책상 위 연주 자세로 올려두고, 두 손이 화면에 모두 들어오게 화면 각도와 손 위치를 조절합니다.</li>
+      <li>손가락을 하나씩 두드려 보며 3초 이상 두 수치가 모두 초록색인지 확인합니다.</li>
+      <li>실제 왼손 위에 "왼손", 손끝에 C3~G3가 뜨는지 확인합니다. 반대면 체크박스를 켭니다.</li>
+      <li>조명이 어두우면 처리 속도와 검출률이 떨어지니 밝은 곳에서 확인합니다.</li>
+    </ol>
+  </div>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
